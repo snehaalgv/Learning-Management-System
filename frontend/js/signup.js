@@ -1,39 +1,37 @@
-document.getElementById('login-form').addEventListener('submit', async function(e) {
+document.getElementById('signup-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
     const errorMessage = document.getElementById('error-message');
 
     // Clear previous error message
     errorMessage.textContent = '';
 
     try {
-        const response = await fetch('http://localhost:8000/auth/login', {
+        const response = await fetch('http://localhost:8000/auth/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                name: name,
                 email: email,
-                password: password
+                password: password,
+                role: role
             })
         });
 
         const data = await response.json();
 
         if (data.error) {
-            // Login failed
+            // Signup failed
             errorMessage.textContent = data.error;
         } else {
-            // Login successful
-            if (data.role === 'student') {
-                window.location.href = 'student_dashboard.html';
-            } else if (data.role === 'educator') {
-                window.location.href = 'educator_dashboard.html';
-            } else {
-                errorMessage.textContent = 'Unknown user role.';
-            }
+            // Signup successful
+            window.location.href = 'login.html';
         }
     } catch (error) {
         console.error('Error:', error);
