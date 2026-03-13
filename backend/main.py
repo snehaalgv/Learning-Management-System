@@ -27,22 +27,15 @@ async def read_root():
 # Include routers
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(student_router, prefix="/student", tags=["Student"])
-app.include_router(educator_router, prefix="", tags=["Educator"])
-app.include_router(student_router, prefix="", tags=["Student"])
+app.include_router(educator_router, prefix="/educator", tags=["Educator"])
 
-# Direct add auth routes
+# Direct add auth routes (for backward compatibility)
 from auth_api import signup
 app.post("/auth/signup")(signup)
 
 from auth_api import login
 app.post("/auth/login")(login)
 
-# Direct add educator routes
+# Direct add general routes
 from educator_api import get_all_courses
 app.get("/courses")(get_all_courses)
-
-# from educator_api import create_course
-# app.post("/educator/create-course")(create_course)
-
-# from educator_api import get_all_courses
-# app.get("/courses")(get_all_courses)

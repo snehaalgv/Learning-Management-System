@@ -1,6 +1,7 @@
-// Get student ID from localStorage
+// Get student ID from URL parameters
 function getStudentId() {
-    return localStorage.getItem('student_id');
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('student_id');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -74,7 +75,7 @@ async function loadStudentCourses(studentId) {
     coursesContainer.innerHTML = '';
 
     try {
-        const response = await fetch(`http://localhost:8000/student/my-courses/${studentId}`);
+        const response = await fetch(`http://localhost:8001/student/my-courses/${studentId}`);
         const courses = await response.json();
 
         loading.style.display = 'none';

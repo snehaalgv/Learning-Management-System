@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadEducatorDashboard(educatorId) {
     try {
-        const response = await fetch(`http://localhost:8000/educator/dashboard/${educatorId}`);
+        const response = await fetch(`http://localhost:8001/educator/dashboard/${educatorId}`);
         const data = await response.json();
 
         // Update stats
@@ -44,7 +44,7 @@ async function loadEducatorCourses(educatorId) {
     coursesContainer.innerHTML = '';
 
     try {
-        const response = await fetch(`http://localhost:8000/educator/dashboard/${educatorId}`);
+        const response = await fetch(`http://localhost:8001/educator/dashboard/${educatorId}`);
         const data = await response.json();
 
         loading.style.display = 'none';

@@ -118,3 +118,75 @@ def create_sqlite_tables():
 
 # Create tables at import time (safe even if already created)
 create_sqlite_tables()
+
+def seed_database():
+    """Add sample data for testing"""
+    conn = sqlite3.connect("lms.db")
+    try:
+        # Check if data already exists
+        cursor = conn.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] > 0:
+            return  # Data already exists
+
+        # Add sample users
+        users = [
+            ("John Doe", "john@example.com", "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj8ZJcKvqUe", "student"),  # password: password123
+            ("Jane Smith", "jane@example.com", "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj8ZJcKvqUe", "student"),  # password: password123
+            ("Dr. Brown", "brown@example.com", "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj8ZJcKvqUe", "educator"),  # password: password123
+        ]
+
+        for user in users:
+            conn.execute(
+                "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+                user
+            )
+
+        # Add sample courses
+        courses = [
+            ("Python Basics", "Learn Python programming from scratch", 3),
+            ("Web Development", "Build modern web applications", 3),
+            ("Data Science", "Introduction to data analysis and machine learning", 3),
+        ]
+
+        for course in courses:
+            conn.execute(
+                "INSERT INTO courses (title, description, educator_id) VALUES (?, ?, ?)",
+                course
+            )
+
+        # Add sample assignments
+        assignments = [
+            (1, "Python Variables Assignment", "uploads"),
+            (1, "Python Functions Assignment", "uploads"),
+            (2, "HTML/CSS Project", "uploads"),
+        ]
+
+        for assignment in assignments:
+            conn.execute(
+                "INSERT INTO assignments (course_id, title, pdf_path) VALUES (?, ?, ?)",
+                assignment
+            )
+
+        # Add sample enrollments
+        enrollments = [
+            (1, 1),  # John in Python Basics
+            (1, 2),  # John in Web Development
+            (2, 1),  # Jane in Python Basics
+        ]
+
+        for enrollment in enrollments:
+            conn.execute(
+                "INSERT INTO enrollments (student_id, course_id) VALUES (?, ?)",
+                enrollment
+            )
+
+        conn.commit()
+        print("Sample data added successfully!")
+
+    except Exception as e:
+        print(f"Error seeding database: {e}")
+    finally:
+        conn.close()
+
+# Seed the database
+seed_database()

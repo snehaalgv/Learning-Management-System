@@ -12,7 +12,7 @@ class EnrollRequest(BaseModel):
     student_id: int
     course_id: int
 
-@router.post("/student/enroll")
+@router.post("/enroll")
 def enroll_student(request: EnrollRequest, db: sqlite3.Connection = Depends(get_db_connection)):
     # Verify that the student_id exists and is a student
     cursor = db.execute("SELECT role FROM users WHERE id = ?", (request.student_id,))

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadCourses() {
     try {
         // Step 1: Call the API using fetch()
-        const response = await fetch('http://127.0.0.1:8000/courses');
+        const response = await fetch('http://localhost:8001/courses');
 
         // Step 2: Convert the response to JSON
         const courses = await response.json();
@@ -55,7 +55,7 @@ async function loadCourses() {
 // Function to enroll in a course
 async function enroll(courseId) {
     // Get student ID from localStorage (assuming it's stored after login)
-    const studentId = localStorage.getItem('student_id');
+    const studentId = localStorage.getItem('user_id');
 
     if (!studentId) {
         alert('Please login first to enroll in courses.');
@@ -70,7 +70,7 @@ async function enroll(courseId) {
 
     try {
         // Send POST request to enroll API
-        const response = await fetch('http://127.0.0.1:8000/student/enroll', {
+        const response = await fetch('http://localhost:8001/student/enroll', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

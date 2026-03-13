@@ -53,13 +53,13 @@ def signup(request: SignupRequest, db: sqlite3.Connection = Depends(get_db_conne
     if cursor.fetchone():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # For now, store password as plain text (in production, hash it)
-    password = request.password
+    # Hash the password before storing
+    hashed_password = get_password_hash(request.password)
 
     # Insert the new user
     cursor = db.execute(
         "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-        (request.name, request.email, password, request.role),
+        (request.name, request.email, hashed_password, request.role),
     )
     db.commit()
     user_id = cursor.lastrowid
@@ -75,8 +75,8 @@ async def login(request: LoginRequest, db: sqlite3.Connection = Depends(get_db_c
     if not user_row:
         return {"error": "Invalid email or password"}
 
-    # For now, check plain text password
-    if request.password != user_row["password"]:
+    # Verify password using bcrypt
+    if not verify_password(request.password, user_row["password"]):
         return {"error": "Invalid email or password"}
 
     return {"user_id": user_row["id"], "name": user_row["name"], "role": user_row["role"]}

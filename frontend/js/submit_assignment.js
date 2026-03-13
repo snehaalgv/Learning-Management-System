@@ -123,7 +123,7 @@ async function submitAssignment(assignmentId, studentId, file) {
     formData.append('student_id', studentId);
     formData.append('pdf_file', file);
 
-    const response = await fetch('http://localhost:8000/student/submit-assignment', {
+    const response = await fetch('http://localhost:8001/student/submit-assignment', {
         method: 'POST',
         body: formData
     });

@@ -33,7 +33,7 @@ def get_all_courses(db: sqlite3.Connection = Depends(get_db_connection)):
     courses = [dict(row) for row in cursor.fetchall()]
     return courses
 
-@router.get("/educator/dashboard/{educator_id}")
+@router.get("/dashboard/{educator_id}")
 def get_educator_dashboard(educator_id: int, db: sqlite3.Connection = Depends(get_db_connection)):
     # Verify that the educator_id exists and is an educator
     cursor = db.execute("SELECT role FROM users WHERE id = ?", (educator_id,))

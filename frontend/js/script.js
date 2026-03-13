@@ -12,7 +12,7 @@ async function loginUser() {
 
     try {
         // Step 3: Send POST request to the login API using fetch()
-        const response = await fetch('http://127.0.0.1:8000/login', {
+        const response = await fetch('http://localhost:8001/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -50,7 +50,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
     errorMessage.textContent = '';
 
     try {
-        const response = await fetch('http://localhost:8000/auth/login', {
+        const response = await fetch('http://localhost:8001/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,15 +69,17 @@ document.getElementById('login-form').addEventListener('submit', async function(
         } else {
             // Login successful
             // Store user information in localStorage
-            localStorage.setItem('student_id', data.user_id);
+            localStorage.setItem('user_id', data.user_id);
             localStorage.setItem('user_name', data.name);
             localStorage.setItem('user_role', data.role);
 
             if (data.role === 'student') {
-                window.location.href = 'student_dashboard.html';
+                window.location.href = `student_dashboard.html?student_id=${data.user_id}`;
             } else if (data.role === 'educator') {
-                window.location.href = 'educator_dashboard.html';
+                window.location.href = `educator_dashboard.html?educator_id=${data.user_id}`;
             } else {
+                errorMessage.textContent = 'Unknown user role';
+            }
                 errorMessage.textContent = 'Unknown user role.';
             }
         }
