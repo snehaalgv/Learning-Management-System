@@ -63,7 +63,7 @@ def get_student_courses(student_id: int, db: sqlite3.Connection = Depends(get_db
     courses = [dict(row) for row in cursor.fetchall()]
     return courses
 
-@router.post("/student/submit-assignment")
+@router.post("/submit-assignment")
 async def submit_assignment(
     assignment_id: int = Form(...),
     student_id: int = Form(...),

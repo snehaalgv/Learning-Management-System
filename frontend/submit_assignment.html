@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Assignment - Learning Management System</title>
+    <link rel="stylesheet" href="css/submit.css">
+</head>
+<body>
+    <div class="submit-container">
+        <h1>Submit Assignment</h1>
+
+        <div id="assignment-info" class="assignment-info">
+            <h2 id="assignment-title">Loading assignment details...</h2>
+            <p id="course-info"></p>
+        </div>
+
+        <form id="submit-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="pdf-file">Select PDF File:</label>
+                <input type="file" id="pdf-file" name="pdf_file" accept=".pdf" required>
+                <small class="file-hint">Only PDF files are accepted. Maximum file size: 10MB</small>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">Submit Assignment</button>
+        </form>
+
+        <div id="success-message" class="success-message" style="display: none;">
+            <div class="success-icon">✓</div>
+            <h3>Assignment Submitted Successfully!</h3>
+            <p>Your assignment has been uploaded and submitted.</p>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script src="js/submit_assignment.js"></script>
+</body>
+</html>
