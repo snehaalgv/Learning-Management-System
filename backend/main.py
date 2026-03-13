@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database import create_sqlite_tables
+from database import create_sqlite_tables
 from auth_api import router as auth_router
 from student_api import router as student_router
 from educator_api import router as educator_router
@@ -27,6 +27,7 @@ async def read_root():
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(student_router, prefix="/student", tags=["Student"])
 app.include_router(educator_router, prefix="", tags=["Educator"])
+app.include_router(student_router, prefix="", tags=["Student"])
 
 # Direct add auth routes
 from auth_api import signup
