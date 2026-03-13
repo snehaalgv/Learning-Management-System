@@ -1,103 +1,53 @@
-let allCourses = [];
-
+// Call loadCourses() when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadCourses();
-    setupSearch();
 });
 
+// Simple function to load courses from the API
 async function loadCourses() {
-    const loading = document.getElementById('loading');
-    const coursesContainer = document.getElementById('courses-container');
-    const noCourses = document.getElementById('no-courses');
-
-    loading.style.display = 'block';
-    coursesContainer.innerHTML = '';
-
     try {
-        const response = await fetch('http://localhost:8000/courses');
+        // Step 1: Call the API using fetch()
+        const response = await fetch('http://127.0.0.1:8000/courses');
+
+        // Step 2: Convert the response to JSON
         const courses = await response.json();
 
-        loading.style.display = 'none';
+        // Get the div where we want to display courses
+        const courseListDiv = document.getElementById('courseList');
 
-        if (courses.length === 0) {
-            noCourses.style.display = 'block';
-            return;
-        }
+        // Clear any existing content
+        courseListDiv.innerHTML = '';
 
-        allCourses = courses;
-        displayCourses(courses);
+        // Step 3: Display courses dynamically
+        courses.forEach(course => {
+            // Create a div for each course
+            const courseDiv = document.createElement('div');
+            courseDiv.className = 'course-item';
+
+            // Add course title
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = course.title;
+            courseDiv.appendChild(titleElement);
+
+            // Add course description
+            const descriptionElement = document.createElement('p');
+            descriptionElement.textContent = course.description;
+            courseDiv.appendChild(descriptionElement);
+
+            // Add Enroll button
+            const enrollButton = document.createElement('button');
+            enrollButton.textContent = 'Enroll';
+            enrollButton.onclick = function() {
+                alert('Enrolled in: ' + course.title);
+            };
+            courseDiv.appendChild(enrollButton);
+
+            // Add the course div to the courseList div
+            courseListDiv.appendChild(courseDiv);
+        });
 
     } catch (error) {
         console.error('Error loading courses:', error);
-        loading.style.display = 'none';
-        noCourses.textContent = 'Error loading courses. Please try again later.';
-        noCourses.style.display = 'block';
+        document.getElementById('courseList').innerHTML = '<p>Error loading courses. Please try again later.</p>';
     }
-}
-
-function displayCourses(courses) {
-    const coursesContainer = document.getElementById('courses-container');
-    const noCourses = document.getElementById('no-courses');
-
-    coursesContainer.innerHTML = '';
-
-    if (courses.length === 0) {
-        noCourses.style.display = 'block';
-        return;
-    }
-
-    noCourses.style.display = 'none';
-
-    courses.forEach(course => {
-        const courseCard = createCourseCard(course);
-        coursesContainer.appendChild(courseCard);
-    });
-}
-
-function createCourseCard(course) {
-    const card = document.createElement('div');
-    card.className = 'course-card';
-
-    card.innerHTML = `
-        <div class="course-header">
-            <h3 class="course-title">${course.title}</h3>
-        </div>
-        <div class="course-content">
-            <p class="course-description">${course.description}</p>
-            <button class="enroll-btn" data-course-id="${course.id}">Enroll Now</button>
-        </div>
-    `;
-
-    // Add event listener to enroll button
-    const enrollBtn = card.querySelector('.enroll-btn');
-    enrollBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        enrollInCourse(course.id, course.title);
-    });
-
-    return card;
-}
-
-function enrollInCourse(courseId, courseTitle) {
-    // For now, just show an alert. In a real implementation, this would call an enroll API
-    alert(`Enrollment functionality for "${courseTitle}" will be implemented soon!`);
-    // TODO: Implement enrollment API call
-    // fetch('http://localhost:8000/enroll', { method: 'POST', body: JSON.stringify({ courseId }) })
-}
-
-function setupSearch() {
-    const searchInput = document.getElementById('search-input');
-
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase().trim();
-
-        if (searchTerm === '') {
-            displayCourses(allCourses);
-        } else {
-            const filteredCourses = allCourses.filter(course =>
-                course.title.toLowerCase().includes(searchTerm)
-            );
-            displayCourses(filteredCourses);
-        }
-    });
 }
