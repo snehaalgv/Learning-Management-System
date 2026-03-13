@@ -42,26 +42,46 @@ def enroll_student(request: EnrollRequest, db: sqlite3.Connection = Depends(get_
     enrollment_id = cursor.lastrowid
     return {"enrollment_id": enrollment_id, "message": "Successfully enrolled in course"}
 
-@router.get("/student/my-courses/{student_id}")
-def get_student_courses(student_id: int, db: sqlite3.Connection = Depends(get_db_connection)):
+@router.get("/dashboard/{student_id}")
+async def get_student_dashboard(student_id: int, db: sqlite3.Connection = Depends(get_db_connection)):
     # Verify that the student_id exists and is a student
     cursor = db.execute("SELECT role FROM users WHERE id = ?", (student_id,))
     user = cursor.fetchone()
     if not user or user["role"] != "student":
         raise HTTPException(status_code=400, detail="Invalid student_id")
 
-    # Join enrollments with courses
+    # Get enrolled courses count
     cursor = db.execute(
-        """
-        SELECT c.id, c.title, c.description, c.educator_id
-        FROM courses c
-        JOIN enrollments e ON c.id = e.course_id
-        WHERE e.student_id = ?
-        """,
+        "SELECT COUNT(*) as count FROM enrollments WHERE student_id = ?",
         (student_id,),
     )
-    courses = [dict(row) for row in cursor.fetchall()]
-    return courses
+    enrolled_courses_count = cursor.fetchone()["count"]
+
+    # Calculate progress: completed assignments vs total assignments
+    # For simplicity, we'll consider submitted assignments as completed modules
+    cursor = db.execute("""
+        SELECT COUNT(DISTINCT s.assignment_id) as completed
+        FROM submissions s
+        JOIN assignments a ON s.assignment_id = a.id
+        JOIN enrollments e ON a.course_id = e.course_id
+        WHERE e.student_id = ?
+    """, (student_id,))
+    completed_modules = cursor.fetchone()["completed"]
+
+    # Total available assignments for enrolled courses
+    cursor = db.execute("""
+        SELECT COUNT(a.id) as total
+        FROM assignments a
+        JOIN enrollments e ON a.course_id = e.course_id
+        WHERE e.student_id = ?
+    """, (student_id,))
+    total_modules = cursor.fetchone()["total"]
+
+    return {
+        "enrolled_courses_count": enrolled_courses_count,
+        "completed_modules": completed_modules,
+        "total_modules": total_modules
+    }
 
 @router.post("/submit-assignment")
 async def submit_assignment(

@@ -13,8 +13,61 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    loadStudentDashboard(studentId);
     loadStudentCourses(studentId);
 });
+
+async function loadStudentDashboard(studentId) {
+    try {
+        const response = await fetch(`http://localhost:8000/student/dashboard/${studentId}`);
+        const data = await response.json();
+
+        // Update total courses
+        document.getElementById('total-courses').textContent = data.enrolled_courses_count;
+
+        // Update progress info
+        document.getElementById('completed-modules').textContent = data.completed_modules;
+        document.getElementById('total-modules').textContent = data.total_modules;
+
+        // Create progress chart
+        createProgressChart(data.completed_modules, data.total_modules);
+
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function createProgressChart(completed, total) {
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [completed, total - completed],
+                backgroundColor: [
+                    '#667eea',
+                    '#e2e8f0'
+                ],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: false
+                }
+            }
+        }
+    });
+}
 
 async function loadStudentCourses(studentId) {
     const loading = document.getElementById('loading');

@@ -33,6 +33,9 @@ body {
 
 .stats-section {
     margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
 .stat-card {
@@ -56,6 +59,33 @@ body {
     font-weight: bold;
     color: #667eea;
     margin: 0;
+}
+
+.chart-container {
+    position: relative;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-weight: bold;
+    color: #667eea;
+}
+
+#completed-modules {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.progress-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
 }
 
 .courses-section h2 {
@@ -181,5 +211,9 @@ body {
 
     .stat-number {
         font-size: 2.5rem;
+    }
+
+    .stats-section {
+        grid-template-columns: 1fr;
     }
 }

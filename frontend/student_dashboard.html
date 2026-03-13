@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - Learning Management System</title>
     <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="dashboard-header">
@@ -19,6 +20,16 @@
             <div class="stat-card">
                 <h3>Total Enrolled Courses</h3>
                 <div class="stat-number" id="total-courses">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Course Progress</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart" width="150" height="150"></canvas>
+                    <div class="progress-text">
+                        <div id="completed-modules">0</div>
+                        <div class="progress-label">of <span id="total-modules">0</span> modules</div>
+                    </div>
+                </div>
             </div>
         </div>
 
