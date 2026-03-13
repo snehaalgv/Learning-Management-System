@@ -34,3 +34,81 @@ def get_db_connection():
         yield conn
     finally:
         conn.close()
+
+
+def create_sqlite_tables():
+    """Create the LMS tables if they don't already exist."""
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                role TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS courses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT,
+                educator_id INTEGER NOT NULL,
+                FOREIGN KEY (educator_id) REFERENCES users(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS lectures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                course_id INTEGER NOT NULL,
+                video_link TEXT,
+                FOREIGN KEY (course_id) REFERENCES courses(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS assignments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                course_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                pdf_path TEXT,
+                FOREIGN KEY (course_id) REFERENCES courses(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS enrollments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL,
+                course_id INTEGER NOT NULL,
+                FOREIGN KEY (student_id) REFERENCES users(id),
+                FOREIGN KEY (course_id) REFERENCES courses(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS submissions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                assignment_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
+                pdf_file TEXT,
+                grade TEXT,
+                FOREIGN KEY (assignment_id) REFERENCES assignments(id),
+                FOREIGN KEY (student_id) REFERENCES users(id)
+            )
+            """
+        )
+
+
+# Create tables at import time (safe even if already created)
+create_sqlite_tables()

@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine
-from models import Base
+from database import create_sqlite_tables
 from auth_api import router as auth_router
 from student_api import router as student_router
 from educator_api import router as educator_router
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Ensure SQLite tables exist before the app starts
+create_sqlite_tables()
 
 app = FastAPI(title="Learning Management System API")
 

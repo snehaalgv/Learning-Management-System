@@ -20,10 +20,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 router = APIRouter()
 
 class UserCreate(BaseModel):
+    name: str
     email: str
-    username: str
     password: str
-    full_name: str
     role: str  # "student" or "educator"
 
 class Token(BaseModel):
@@ -31,7 +30,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    email: Optional[str] = None
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -57,14 +56,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: sqlite3.Conn
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
 
-    cursor = db.execute("SELECT * FROM users WHERE username = ?", (token_data.username,))
+    cursor = db.execute("SELECT * FROM users WHERE email = ?", (token_data.email,))
     user_row = cursor.fetchone()
     if user_row is None:
         raise credentials_exception
@@ -72,43 +71,40 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: sqlite3.Conn
 
 @router.post("/signup", response_model=Token)
 async def signup(user: UserCreate, db: sqlite3.Connection = Depends(get_db_connection)):
-    cursor = db.execute("SELECT id FROM users WHERE username = ?", (user.username,))
-    if cursor.fetchone():
-        raise HTTPException(status_code=400, detail="Username already registered")
     cursor = db.execute("SELECT id FROM users WHERE email = ?", (user.email,))
     if cursor.fetchone():
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed_password = get_password_hash(user.password)
     db.execute(
-        "INSERT INTO users (email, username, hashed_password, full_name, role) VALUES (?, ?, ?, ?, ?)",
-        (user.email, user.username, hashed_password, user.full_name, user.role),
+        "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+        (user.name, user.email, hashed_password, user.role),
     )
     db.commit()
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: sqlite3.Connection = Depends(get_db_connection)):
-    cursor = db.execute("SELECT * FROM users WHERE username = ?", (form_data.username,))
+    cursor = db.execute("SELECT * FROM users WHERE email = ?", (form_data.username,))
     user_row = cursor.fetchone()
-    if not user_row or not verify_password(form_data.password, user_row["hashed_password"]):
+    if not user_row or not verify_password(form_data.password, user_row["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user_row["username"]}, expires_delta=access_token_expires
+        data={"sub": user_row["email"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me")
 async def read_users_me(current_user: dict = Depends(get_current_user)):
-    return {"username": current_user["username"], "email": current_user["email"], "role": current_user["role"]}
+    return {"name": current_user["name"], "email": current_user["email"], "role": current_user["role"]}
