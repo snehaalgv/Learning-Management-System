@@ -28,11 +28,25 @@ class LoginResponse(BaseModel):
     name: str
     role: str
 
+def truncate_for_bcrypt(password: str) -> str:
+    # bcrypt has a 72-byte limit. Ensure the string we hash is <= 72 bytes in UTF-8.
+    encoded = password.encode('utf-8')
+    if len(encoded) <= 72:
+        return password
+
+    # Truncate and safely decode to avoid breaking multibyte characters
+    truncated = encoded[:72].decode('utf-8', errors='ignore')
+    return truncated
+
+
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    safe_password = truncate_for_bcrypt(password)
+    return pwd_context.hash(safe_password)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    safe_password = truncate_for_bcrypt(plain_password)
+    return pwd_context.verify(safe_password, hashed_password)
 
 async def get_current_user(user_id: int = Header(..., alias="X-User-ID"), db: sqlite3.Connection = Depends(get_db_connection)):
     cursor = db.execute("SELECT * FROM users WHERE id = ?", (user_id,))

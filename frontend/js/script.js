@@ -63,9 +63,9 @@ document.getElementById('login-form').addEventListener('submit', async function(
 
         const data = await response.json();
 
-        if (data.error) {
+        if (data.error || data.detail) {
             // Login failed
-            errorMessage.textContent = data.error;
+            errorMessage.textContent = data.error || data.detail;
         } else {
             // Login successful
             // Store user information in localStorage
@@ -79,8 +79,6 @@ document.getElementById('login-form').addEventListener('submit', async function(
                 window.location.href = `educator_dashboard.html?educator_id=${data.user_id}`;
             } else {
                 errorMessage.textContent = 'Unknown user role';
-            }
-                errorMessage.textContent = 'Unknown user role.';
             }
         }
     } catch (error) {

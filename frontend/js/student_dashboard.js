@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadStudentDashboard(studentId) {
     try {
         // Step 1: Call the API using fetch()
-        const response = await fetch(`http://127.0.0.1:8000/student/dashboard/${studentId}`);
+        const response = await fetch(`http://localhost:8001/student/dashboard/${studentId}`);
 
         // Step 2: Convert the response to JSON
         const data = await response.json();

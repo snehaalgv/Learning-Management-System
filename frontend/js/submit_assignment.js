@@ -31,7 +31,7 @@ async function submitAssignment() {
         formData.append('assignment_id', '1');  // Replace with actual assignment ID
 
         // Step 4: Send POST request using fetch()
-        const response = await fetch('http://127.0.0.1:8000/student/submit-assignment', {
+        const response = await fetch('http://localhost:8001/student/submit-assignment', {
             method: 'POST',
             body: formData
         });

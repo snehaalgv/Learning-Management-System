@@ -26,9 +26,9 @@ document.getElementById('signup-form').addEventListener('submit', async function
 
         const data = await response.json();
 
-        if (data.error) {
+        if (data.error || data.detail) {
             // Signup failed
-            errorMessage.textContent = data.error;
+            errorMessage.textContent = data.error || data.detail;
         } else {
             // Signup successful - show alert and redirect
             alert('Signup successful');
