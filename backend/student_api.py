@@ -111,3 +111,39 @@ async def submit_assignment(
     submission_id = cursor.lastrowid
 
     return {"submission_id": submission_id, "message": "Assignment submitted successfully"}
+
+@router.get("/student/dashboard/{student_id}")
+def get_student_dashboard(student_id: int, db: sqlite3.Connection = Depends(get_db_connection)):
+    # Verify that the student_id exists and is a student
+    cursor = db.execute("SELECT role FROM users WHERE id = ?", (student_id,))
+    user = cursor.fetchone()
+    if not user or user["role"] != "student":
+        raise HTTPException(status_code=400, detail="Invalid student_id")
+
+    # Total enrolled courses
+    cursor = db.execute("SELECT COUNT(*) as count FROM enrollments WHERE student_id = ?", (student_id,))
+    total_enrolled = cursor.fetchone()["count"]
+
+    # Total modules completed (assuming modules are assignments, completed means submitted)
+    cursor = db.execute("SELECT COUNT(DISTINCT assignment_id) as count FROM submissions WHERE student_id = ?", (student_id,))
+    modules_completed = cursor.fetchone()["count"]
+
+    # Progress percentage: (completed assignments / total assignments in enrolled courses) * 100
+    # First, get enrolled course_ids
+    cursor = db.execute("SELECT course_id FROM enrollments WHERE student_id = ?", (student_id,))
+    enrolled_course_ids = [row["course_id"] for row in cursor.fetchall()]
+
+    if enrolled_course_ids:
+        # Total assignments in enrolled courses
+        placeholders = ','.join('?' for _ in enrolled_course_ids)
+        cursor = db.execute(f"SELECT COUNT(*) as count FROM assignments WHERE course_id IN ({placeholders})", enrolled_course_ids)
+        total_assignments = cursor.fetchone()["count"]
+        progress_percentage = (modules_completed / total_assignments * 100) if total_assignments > 0 else 0
+    else:
+        progress_percentage = 0
+
+    return {
+        "total_enrolled_courses": total_enrolled,
+        "total_modules_completed": modules_completed,
+        "progress_percentage": round(progress_percentage, 2)
+    }
