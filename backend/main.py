@@ -19,11 +19,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(student_router, prefix="/student", tags=["Student"])
-app.include_router(educator_router, prefix="/educator", tags=["Educator"])
-
 @app.get("/")
-async def root():
+async def read_root():
     return {"message": "Welcome to the Learning Management System API"}
+
+# Include routers
+# app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+# app.include_router(student_router, prefix="/student", tags=["Student"])
+# app.include_router(educator_router, prefix="/educator", tags=["Educator"])
+
+# Direct add auth routes
+from auth_api import signup
+app.post("/auth/signup")(signup)
+
+from auth_api import login
+app.post("/auth/login")(login)

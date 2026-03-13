@@ -26,7 +26,6 @@ def get_db():
         db.close()
 
 # sqlite3 connection dependency (returns rows as dicts)
-@contextmanager
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -41,9 +40,16 @@ def create_sqlite_tables():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("PRAGMA foreign_keys = ON")
+        # Drop existing tables to recreate with correct schema
+        conn.execute("DROP TABLE IF EXISTS submissions")
+        conn.execute("DROP TABLE IF EXISTS assignments")
+        conn.execute("DROP TABLE IF EXISTS lectures")
+        conn.execute("DROP TABLE IF EXISTS enrollments")
+        conn.execute("DROP TABLE IF EXISTS courses")
+        conn.execute("DROP TABLE IF EXISTS users")
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
@@ -54,7 +60,7 @@ def create_sqlite_tables():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS courses (
+            CREATE TABLE courses (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 description TEXT,
@@ -65,7 +71,7 @@ def create_sqlite_tables():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS lectures (
+            CREATE TABLE lectures (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 course_id INTEGER NOT NULL,
                 video_link TEXT,
@@ -75,7 +81,7 @@ def create_sqlite_tables():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS assignments (
+            CREATE TABLE assignments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 course_id INTEGER NOT NULL,
                 title TEXT NOT NULL,
@@ -86,7 +92,7 @@ def create_sqlite_tables():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS enrollments (
+            CREATE TABLE enrollments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 student_id INTEGER NOT NULL,
                 course_id INTEGER NOT NULL,
@@ -97,7 +103,7 @@ def create_sqlite_tables():
         )
         conn.execute(
             """
-            CREATE TABLE IF NOT EXISTS submissions (
+            CREATE TABLE submissions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 assignment_id INTEGER NOT NULL,
                 student_id INTEGER NOT NULL,
