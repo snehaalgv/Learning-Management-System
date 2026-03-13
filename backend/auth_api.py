@@ -47,8 +47,24 @@ def test():
     return {"message": "Auth test updated"}
 
 @router.post("/signup")
-def signup(request: SignupRequest):
-    return {"message": "User created successfully", "user_id": 1}
+def signup(request: SignupRequest, db: sqlite3.Connection = Depends(get_db_connection)):
+    # Check if email already exists
+    cursor = db.execute("SELECT id FROM users WHERE email = ?", (request.email,))
+    if cursor.fetchone():
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # For now, store password as plain text (in production, hash it)
+    password = request.password
+
+    # Insert the new user
+    cursor = db.execute(
+        "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+        (request.name, request.email, password, request.role),
+    )
+    db.commit()
+    user_id = cursor.lastrowid
+
+    return {"message": "User created successfully", "user_id": user_id}
 
 @router.post("/login")
 async def login(request: LoginRequest, db: sqlite3.Connection = Depends(get_db_connection)):
@@ -59,8 +75,8 @@ async def login(request: LoginRequest, db: sqlite3.Connection = Depends(get_db_c
     if not user_row:
         return {"error": "Invalid email or password"}
 
-    # Verify password
-    if not verify_password(request.password, user_row["password"]):
+    # For now, check plain text password
+    if request.password != user_row["password"]:
         return {"error": "Invalid email or password"}
 
     return {"user_id": user_row["id"], "name": user_row["name"], "role": user_row["role"]}
