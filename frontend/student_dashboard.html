@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Learning Management System</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <h1>Student Dashboard</h1>
+        <div class="user-info">
+            <span id="student-name">Welcome!</span>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="stats-section">
+            <div class="stat-card">
+                <h3>Total Enrolled Courses</h3>
+                <div class="stat-number" id="total-courses">0</div>
+            </div>
+        </div>
+
+        <section class="courses-section">
+            <h2>My Courses</h2>
+            <div id="courses-container" class="courses-grid">
+                <!-- Courses will be loaded here -->
+            </div>
+            <div id="loading" class="loading">Loading your courses...</div>
+            <div id="no-courses" class="no-courses" style="display: none;">You haven't enrolled in any courses yet.</div>
+        </section>
+    </main>
+
+    <script src="js/student_dashboard.js"></script>
+</body>
+</html>
