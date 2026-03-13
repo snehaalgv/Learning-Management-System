@@ -10,13 +10,14 @@ create_sqlite_tables()
 
 app = FastAPI(title="Learning Management System API")
 
-# CORS middleware
+# Enable CORS (Cross-Origin Resource Sharing) to allow the frontend to make requests to the backend
+# This is important for web applications where the frontend and backend are on different domains or ports
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allow requests from any origin (for development; in production, specify your frontend URL)
+    allow_credentials=True,  # Allow cookies and authentication headers
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers in requests
 )
 
 @app.get("/")
