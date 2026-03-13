@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses - Learning Management System</title>
+    <link rel="stylesheet" href="css/courses.css">
+</head>
+<body>
+    <header>
+        <h1>Available Courses</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search courses by title...">
+        </div>
+    </header>
+
+    <main>
+        <div id="courses-container" class="courses-grid">
+            <!-- Courses will be loaded here -->
+        </div>
+        <div id="loading" class="loading">Loading courses...</div>
+        <div id="no-courses" class="no-courses" style="display: none;">No courses found.</div>
+    </main>
+
+    <script src="js/courses.js"></script>
+</body>
+</html>
