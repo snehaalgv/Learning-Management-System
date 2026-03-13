@@ -1,7 +1,6 @@
-// Get student ID from URL parameters
+// Get student ID from localStorage
 function getStudentId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('student_id');
+    return localStorage.getItem('student_id');
 }
 
 document.addEventListener('DOMContentLoaded', function() {

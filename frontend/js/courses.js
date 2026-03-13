@@ -38,7 +38,7 @@ async function loadCourses() {
             const enrollButton = document.createElement('button');
             enrollButton.textContent = 'Enroll';
             enrollButton.onclick = function() {
-                alert('Enrolled in: ' + course.title);
+                enroll(course.id);
             };
             courseDiv.appendChild(enrollButton);
 
@@ -49,5 +49,45 @@ async function loadCourses() {
     } catch (error) {
         console.error('Error loading courses:', error);
         document.getElementById('courseList').innerHTML = '<p>Error loading courses. Please try again later.</p>';
+    }
+}
+
+// Function to enroll in a course
+async function enroll(courseId) {
+    // Get student ID from localStorage (assuming it's stored after login)
+    const studentId = localStorage.getItem('student_id');
+
+    if (!studentId) {
+        alert('Please login first to enroll in courses.');
+        return;
+    }
+
+    // Create the data to send
+    const enrollData = {
+        student_id: parseInt(studentId),
+        course_id: courseId
+    };
+
+    try {
+        // Send POST request to enroll API
+        const response = await fetch('http://127.0.0.1:8000/student/enroll', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(enrollData)
+        });
+
+        // Check if enrollment was successful
+        if (response.ok) {
+            alert('Enrollment successful!');
+        } else {
+            const errorData = await response.json();
+            alert('Enrollment failed: ' + (errorData.error || 'Unknown error'));
+        }
+
+    } catch (error) {
+        console.error('Error during enrollment:', error);
+        alert('Network error occurred during enrollment');
     }
 }

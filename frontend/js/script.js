@@ -68,6 +68,11 @@ document.getElementById('login-form').addEventListener('submit', async function(
             errorMessage.textContent = data.error;
         } else {
             // Login successful
+            // Store user information in localStorage
+            localStorage.setItem('student_id', data.user_id);
+            localStorage.setItem('user_name', data.name);
+            localStorage.setItem('user_role', data.role);
+
             if (data.role === 'student') {
                 window.location.href = 'student_dashboard.html';
             } else if (data.role === 'educator') {
