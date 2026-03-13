@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # SQLite file (same database used by SQLAlchemy)
-DB_PATH = Path(__file__).resolve().parent.parent / "lms.db"
+DB_PATH = Path(__file__).resolve().parent / "lms.db"
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(

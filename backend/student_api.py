@@ -1,28 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 import sqlite3
 from pydantic import BaseModel
+import os
+from pathlib import Path
 
 from database import get_db_connection
-from auth_api import get_current_user
 
 router = APIRouter()
 
-@router.get("/courses")
-async def get_enrolled_courses(current_user: dict = Depends(get_current_user), db: sqlite3.Connection = Depends(get_db_connection)):
-    if current_user["role"] != "student":
-        raise HTTPException(status_code=403, detail="Not authorized")
+class EnrollRequest(BaseModel):
+    student_id: int
+    course_id: int
 
+@router.post("/student/enroll")
+def enroll_student(request: EnrollRequest, db: sqlite3.Connection = Depends(get_db_connection)):
+    # Verify that the student_id exists and is a student
+    cursor = db.execute("SELECT role FROM users WHERE id = ?", (request.student_id,))
+    user = cursor.fetchone()
+    if not user or user["role"] != "student":
+        raise HTTPException(status_code=400, detail="Invalid student_id")
+
+    # Verify that the course exists
+    cursor = db.execute("SELECT id FROM courses WHERE id = ?", (request.course_id,))
+    if not cursor.fetchone():
+        raise HTTPException(status_code=400, detail="Invalid course_id")
+
+    # Check if already enrolled
     cursor = db.execute(
-        "SELECT c.* FROM courses c JOIN enrollments e ON c.id = e.course_id WHERE e.student_id = ?",
-        (current_user["id"],),
+        "SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?",
+        (request.student_id, request.course_id),
     )
-    courses = [dict(row) for row in cursor.fetchall()]
-    return courses
-
-@router.get("/assignments/{course_id}")
-async def get_assignments(course_id: int, current_user: dict = Depends(get_current_user), db: sqlite3.Connection = Depends(get_db_connection)):
-    if current_user["role"] != "student":
-        raise HTTPException(status_code=403, detail="Not authorized")
+    if cursor.fetchone():
+        raise HTTPException(status_code=400, detail="Already enrolled in this course")
 
     # Insert enrollment
     cursor = db.execute(
@@ -53,3 +62,52 @@ def get_student_courses(student_id: int, db: sqlite3.Connection = Depends(get_db
     )
     courses = [dict(row) for row in cursor.fetchall()]
     return courses
+
+@router.post("/student/submit-assignment")
+async def submit_assignment(
+    assignment_id: int = Form(...),
+    student_id: int = Form(...),
+    pdf_file: UploadFile = File(...),
+    db: sqlite3.Connection = Depends(get_db_connection)
+):
+    # Verify that the student_id exists and is a student
+    cursor = db.execute("SELECT role FROM users WHERE id = ?", (student_id,))
+    user = cursor.fetchone()
+    if not user or user["role"] != "student":
+        raise HTTPException(status_code=400, detail="Invalid student_id")
+
+    # Verify that the assignment exists and get the course_id
+    cursor = db.execute("SELECT course_id FROM assignments WHERE id = ?", (assignment_id,))
+    assignment_row = cursor.fetchone()
+    if not assignment_row:
+        raise HTTPException(status_code=400, detail="Invalid assignment_id")
+
+    course_id = assignment_row["course_id"]
+
+    # Verify that the student is enrolled in the course
+    cursor = db.execute(
+        "SELECT 1 FROM enrollments WHERE student_id = ? AND course_id = ?",
+        (student_id, course_id),
+    )
+    if not cursor.fetchone():
+        raise HTTPException(status_code=403, detail="Student not enrolled in the course for this assignment")
+
+    # Ensure the uploads directory exists
+    uploads_dir = Path(__file__).parent / "uploads"
+    uploads_dir.mkdir(exist_ok=True)
+
+    # Save the PDF file
+    file_path = uploads_dir / f"submission_{assignment_id}_{student_id}.pdf"
+    with open(file_path, "wb") as f:
+        content = await pdf_file.read()
+        f.write(content)
+
+    # Store submission data in the database
+    cursor = db.execute(
+        "INSERT INTO submissions (assignment_id, student_id, pdf_file) VALUES (?, ?, ?)",
+        (assignment_id, student_id, str(file_path)),
+    )
+    db.commit()
+    submission_id = cursor.lastrowid
+
+    return {"submission_id": submission_id, "message": "Assignment submitted successfully"}
