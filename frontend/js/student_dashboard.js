@@ -18,18 +18,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadStudentDashboard(studentId) {
     try {
-        const response = await fetch(`http://localhost:8000/student/dashboard/${studentId}`);
+        // Step 1: Call the API using fetch()
+        const response = await fetch(`http://127.0.0.1:8000/student/dashboard/${studentId}`);
+
+        // Step 2: Convert the response to JSON
         const data = await response.json();
 
-        // Update total courses
-        document.getElementById('total-courses').textContent = data.enrolled_courses_count;
-
-        // Update progress info
-        document.getElementById('completed-modules').textContent = data.completed_modules;
-        document.getElementById('total-modules').textContent = data.total_modules;
-
-        // Create progress chart
-        createProgressChart(data.completed_modules, data.total_modules);
+        // Step 3: Display total_courses in the element with id="courseCount"
+        document.getElementById('courseCount').textContent = data.total_courses;
 
     } catch (error) {
         console.error('Error loading dashboard data:', error);
