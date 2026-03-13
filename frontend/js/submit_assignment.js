@@ -8,6 +8,48 @@ function getUrlParams() {
     };
 }
 
+// Simple submitAssignment function as requested
+async function submitAssignment() {
+    try {
+        // Step 1: Read the PDF file from input id="pdfFile"
+        const fileInput = document.getElementById('pdf-file');
+        const pdfFile = fileInput.files[0];
+
+        if (!pdfFile) {
+            alert('Please select a PDF file first!');
+            return;
+        }
+
+        // Step 2: Create FormData
+        const formData = new FormData();
+
+        // Step 3: Append file, student_id, and assignment_id
+        formData.append('file', pdfFile);
+
+        // For demo purposes, using hardcoded values. In real app, get from form inputs or URL
+        formData.append('student_id', '1');  // Replace with actual student ID
+        formData.append('assignment_id', '1');  // Replace with actual assignment ID
+
+        // Step 4: Send POST request using fetch()
+        const response = await fetch('http://127.0.0.1:8000/student/submit-assignment', {
+            method: 'POST',
+            body: formData
+        });
+
+        // Check if request was successful
+        if (response.ok) {
+            // Step 5: Show alert after successful submission
+            alert('Assignment submitted successfully!');
+        } else {
+            alert('Failed to submit assignment. Please try again.');
+        }
+
+    } catch (error) {
+        console.error('Error submitting assignment:', error);
+        alert('Error occurred while submitting assignment.');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const params = getUrlParams();
 
