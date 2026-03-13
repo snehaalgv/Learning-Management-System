@@ -11,7 +11,7 @@ async function loginUser() {
     };
 
     try {
-        // Step 3: Send POST request using fetch()
+        // Step 3: Send POST request to the login API using fetch()
         const response = await fetch('http://127.0.0.1:8000/login', {
             method: 'POST',
             headers: {
@@ -20,17 +20,17 @@ async function loginUser() {
             body: JSON.stringify(loginData)
         });
 
-        // Step 4: Convert response to JSON
+        // Step 4: Convert the response to JSON
         const data = await response.json();
 
-        // Step 5: Log the response to console
-        console.log('Login response:', data);
-
-        // Step 6: Show alert if login is successful
+        // Step 5: Check if login is successful
         if (!data.error) {
-            alert('Login successful!');
+            // Show success alert and redirect to dashboard
+            alert('Login Successful');
+            window.location.href = 'dashboard.html';
         } else {
-            alert('Login failed: ' + data.error);
+            // Show failure alert
+            alert('Invalid email or password');
         }
 
     } catch (error) {
