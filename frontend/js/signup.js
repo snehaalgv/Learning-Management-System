@@ -30,7 +30,8 @@ document.getElementById('signup-form').addEventListener('submit', async function
             // Signup failed
             errorMessage.textContent = data.error;
         } else {
-            // Signup successful
+            // Signup successful - show alert and redirect
+            alert('Signup successful');
             window.location.href = 'login.html';
         }
     } catch (error) {
