@@ -5,11 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Management System</title>
     <style>
-        /* Basic styling to center content and make it look modern */
+        /* Navigation bar styles */
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 2rem;
+        }
+
+        .navbar-menu li {
+            display: inline;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-menu a:hover {
+            background-color: #555;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Adjust body to account for fixed navbar */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 80px 0 0 0; /* Add top padding for fixed navbar */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
@@ -99,6 +165,19 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">LMS</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="courses.html">Courses</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><button onclick="logout()" class="logout-btn">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container">
         <!-- Large heading -->
         <h1>Learning Management System</h1>
@@ -115,5 +194,14 @@
             <a href="signup.html" class="btn btn-secondary">Signup</a>
         </div>
     </div>
+
+    <script>
+        // Simple logout function
+        function logout() {
+            // For now, just redirect to index.html
+            // In a real app, you might clear session data
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>
